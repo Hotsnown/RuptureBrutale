@@ -1,0 +1,89 @@
+package com.sample.rules
+
+import java.util.*;   
+
+import com.sample.Conditions.ForceMajeure;
+import com.sample.Conditions.Manquement;
+
+import com.sample.Conditions.RuptureBrutale.*;
+
+//Exceptions
+rule "Force Majeure" @Defeats ("Brutalité pour préavis insuffisant")
+when
+	$relation : Relation();
+	$rupture : Rupture(victime == $relation.victime, auteur == $relation.auteur);
+	ForceMajeure();
+then
+	modify ($rupture) {setBrutale(false)};
+end
+
+rule "Manquement du partenaire" @Defeats ("Brutalité pour préavis insuffisant")
+when 
+	$relation : Relation();
+	$rupture : Rupture(victime == $relation.victime, auteur == $relation.auteur);
+	Manquement(fautif == $relation.victime, grave == true);
+then
+	modify ($rupture) {setBrutale(false)};
+end
+
+//DEFAUTS DE PAIEMENT
+rule "Défauts de paiement"
+when
+	$défauts : DéfautsDePaiements();
+then
+	insert (new Manquement($défauts.fautif, true));
+end
+
+rule "Simple incidents"
+when
+	$défauts : IncidentsDePaiements();
+then
+	insert (new Manquement($défauts.fautif, false));
+end
+
+rule "Retards de paiement"
+when
+	$défauts : RetardsDePaiements();
+then
+	insert (new Manquement($défauts.fautif, false));
+end
+
+//DEFAUTS DE QUALITE
+rule "Manquements aux règles de sécurité"
+when
+	$défauts : ManquementsAuxRèglesDeSécurité();
+then
+	insert (new Manquement($défauts.fautif, true));
+end
+
+rule "Manquement à une procédure de « contrôle qualité »"
+when
+	$défauts : ManquementsAUneProcédureDeControleQualité();
+then
+	insert (new Manquement($défauts.fautif, true));
+end
+
+rule "Manquement à une norme ISO"
+when
+	$défauts : ManquementAUneNormeISO();
+then
+	insert (new Manquement($défauts.fautif, true));
+end
+
+//PRATIQUES ILLICITES
+rule "Commission de pratiques illicites"
+when
+	$défauts : ManquementsAUneProcédureDeControleQualité();
+then
+	insert (new Manquement($défauts.fautif, true));
+end
+
+rule "Manquements aux obligations de non-concurrence"
+when
+	$défauts : ManquementAUneNormeISO();
+then
+	insert (new Manquement($défauts.fautif, true));
+end
+
+//RUPTURE PREVISIBLE
+

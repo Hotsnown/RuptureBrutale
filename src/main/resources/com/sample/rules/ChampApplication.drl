@@ -1,0 +1,82 @@
+//created on: 18 nov. 2022
+package com.sample.rules
+
+import com.sample.Conditions.*
+
+rule "Présomption d'applicabilité" @Defeasible
+when
+then
+	insert (new EstApplicable(true));
+end
+
+query "getEstApplicable"
+    $result: EstApplicable()
+end
+
+//APPLICATION NEGATIVE
+rule "association gérant des établissements médico-sociaux" @Defeats ("Présomption d'applicabilité")
+when
+	$estApplicable:EstApplicable(applicable==true);
+	Relation(activité == Activité.AssociationGérantDesEtablissementsMédicoSociaux)
+then
+	modify($estApplicable) {setEstApplicable(false)}
+end
+
+rule "agence commerciale" @Defeats ("Présomption d'applicabilité")
+when
+	$estApplicable:EstApplicable(applicable==true);
+	Relation(activité == Activité.AgenceCommerciale)
+then
+	modify($estApplicable) {setEstApplicable(false)}
+end
+
+rule "relation entre une société mère et une société fille" @Defeats ("Présomption d'applicabilité")
+when
+	$estApplicable:EstApplicable(applicable==true);
+	Relation(activité == Activité.RelationEntreUneSociétéMèreEtUneSociétéFille)
+then
+	modify($estApplicable) {setEstApplicable(false)}
+end
+
+rule "relation entre prestataire et client" @Defeats ("Présomption d'applicabilité")
+when
+	$estApplicable:EstApplicable(applicable==true);
+	Relation(activité == Activité.RelationEntreUnPrestataireEtUnClient)
+then
+	modify($estApplicable) {setEstApplicable(false)}
+end
+
+rule "relation entre une société coopérative de commerçants détaillants et un associé" @Defeats ("Présomption d'applicabilité")
+when
+	$estApplicable:EstApplicable(applicable==true);
+	Relation(activité == Activité.RelationEntreUneSociétéCoopérativeDeCommerçantsDétaillantsEtUnAssocié)
+then
+	modify($estApplicable) {setEstApplicable(false)}
+end
+
+rule "sous traitance de transport" @Defeats ("Présomption d'applicabilité")
+when
+	$estApplicable:EstApplicable(applicable==true);
+	Relation(activité == Activité.SoustraitanceTransport)
+then
+	modify($estApplicable) {setEstApplicable(false)}
+end
+
+//APPLICATION POSITIVE
+
+rule "syndicat de copropriétaires" @Defeats ("Présomption d'applicabilité")
+when
+	$estApplicable:EstApplicable(applicable==true);
+	Relation(activité == Activité.SyndicatDeCopropriétaire)
+then
+	modify($estApplicable) {setEstApplicable(true)}
+end
+
+rule "contrat de gérance-mandat" @Defeats ("Présomption d'applicabilité")
+when
+	$estApplicable:EstApplicable(applicable==true);
+	Relation(activité == Activité.RelationEntreLesPartiesDUnContratDeGéranceMandat)
+then
+	modify($estApplicable) {setEstApplicable(true)}
+end
+

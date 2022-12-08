@@ -1,0 +1,152 @@
+//created on: 22 sept. 2022
+package com.sample.rules
+
+import java.util.*;   
+
+import com.sample.Conditions.RuptureBrutale.*;
+
+import com.sample.Conditions.ForceMajeure;
+import com.sample.Conditions.Manquement;
+
+//RUPTURE TOTALE
+
+query "getRuptures"
+    $rupture: Rupture()
+end
+
+rule "Cessation des commandes est une rupture"
+when
+    $relation : Relation();
+	CessationDesCommandes(victime == $relation.victime, auteur == $relation.auteur);
+then
+	insert ( new Rupture($relation.victime, $relation.auteur)  );
+end
+
+rule "Cessation des commandes est une rupture totale"
+when
+    $relation : Relation();
+    $rupture : Rupture(victime == $relation.victime, auteur == $relation.auteur);
+	CessationDesCommandes(victime == $relation.victime, auteur == $relation.auteur);
+then
+	modify ($rupture) {setTotale(true)}
+end
+
+rule "Dénonciation du contrat vaut rupture totale"
+when
+    $relation : Relation();
+    $rupture : Rupture(victime == $relation.victime, auteur == $relation.auteur);
+	Dénonciation(contrat.p1 == $relation.victime, contrat.p2 == $relation.auteur);
+then
+	modify ($rupture) {setTotale(true)}
+end
+
+rule "Déréférencement vaut rupture totale"
+when
+    $relation : Relation();
+    $rupture : Rupture(victime == $relation.victime, auteur == $relation.auteur);
+	Déréférencement(fournisseur == $relation.victime, distributeur == $relation.auteur);
+then
+	modify ($rupture) {setTotale(true)}
+end
+
+rule "Appel offres vaut rupture totale"
+when
+    $relation : Relation();
+    $rupture : Rupture(victime == $relation.victime, auteur == $relation.auteur);
+	AppelOffre(commanditaire == $relation.auteur);
+then
+	modify ($rupture) {setTotale(true)}
+end
+
+rule "Modification substantielle vaut rupture totale" @Defeasible
+when
+	$relation : Relation();
+	$rupture : Rupture(victime == $relation.victime, auteur == $relation.auteur);
+	ModificationDesConditionsDeLaRelation(victime == $relation.victime, auteur == $relation.auteur, substantielle == true);
+then
+	modify ($rupture) {setTotale(true)}
+end
+
+rule "Modification substantielle justifiée ne vaut pas rupture totale" @Defeats("Modification substantielle vaut rupture totale")
+when
+	$relation : Relation();
+	$rupture : Rupture(victime == $relation.victime, auteur == $relation.auteur);
+	ModificationDesConditionsDeLaRelation(victime == $relation.victime, auteur == $relation.auteur, substantielle == true, justifiée == true);
+then
+	modify ($rupture) {setTotale(false)}
+end
+
+rule "Modification non substantielle ne vaut pas rupture totale"
+when
+    $relation : Relation();
+    $rupture : Rupture(victime == $relation.victime, auteur == $relation.auteur);
+	ModificationDesConditionsDeLaRelation(victime == $relation.victime, auteur == $relation.auteur, substantielle == false);
+then
+	modify ($rupture) {setTotale(false)}
+end
+
+rule "Suspension du contrat n'est pas une rupture totale"
+when
+    $relation : Relation();
+    $rupture : Rupture(victime == $relation.victime, auteur == $relation.auteur);
+	SuspensionDuContrat(victime == $relation.victime, auteur == $relation.auteur);
+then
+	modify ($rupture) {setTotale(false)}
+end
+
+rule "Liberté contractuelle ne vaut pas rupture totale"
+when
+    $relation : Relation();
+    $rupture : Rupture(victime == $relation.victime, auteur == $relation.auteur);
+	AbsenceOffre(destinataire == $relation.victime, pollicitant == $relation.auteur);
+then
+	modify ($rupture) {setTotale(false)}
+end
+
+
+//RUPTURE PARTIELLE
+
+rule "Diminution du CA vaut une rupture partielle" @Defeasible
+when
+	$relation : Relation();
+	$rupture : Rupture(victime == $relation.victime, auteur == $relation.auteur);
+	DiminutionDuCA(victime == $relation.victime, auteur == $relation.auteur, taux >= 0.60);
+then
+	modify ($rupture) {setPartielle(true)}
+end
+
+rule "Diminution habituelle du CA ne vaut pas rupture partielle" @Defeats ("Diminution du CA vaut une rupture partielle")
+when
+	$relation : Relation();
+	$rupture : Rupture(victime == $relation.victime, auteur == $relation.auteur);
+	DiminutionDuCA(victime == $relation.victime, auteur == $relation.auteur, taux >= 0.60, habituelle==true);
+then
+	modify ($rupture) {setPartielle(false)}
+end
+
+rule "Modification substantielle vaut rupture partielle" @Defeasible
+when
+	$relation : Relation();
+	$rupture : Rupture(victime == $relation.victime, auteur == $relation.auteur);
+	ModificationDesConditionsDeLaRelation(victime == $relation.victime, auteur == $relation.auteur, substantielle == true);
+then
+	modify ($rupture) {setPartielle(true)}
+end
+
+rule "Modification substantielle justifiée ne vaut pas rupture partielle" @Defeats("Modification substantielle vaut rupture partielle")
+when
+	$relation : Relation();
+	$rupture : Rupture(victime == $relation.victime, auteur == $relation.auteur);
+	ModificationDesConditionsDeLaRelation(victime == $relation.victime, auteur == $relation.auteur, substantielle == true, justifiée==true);
+then
+	modify ($rupture) {setPartielle(false)}
+end
+
+rule "Retrait unilatéral de l'obligation d'exclusivité vaut rupture partielle"
+when
+	$relation : Relation();
+	$rupture : Rupture(victime == $relation.victime, auteur == $relation.auteur);
+	RetraitObligationExclusivité(créancier == $relation.victime, débiteur == $relation.auteur, unilatéral==true);
+then
+	modify ($rupture) {setPartielle(true)}
+end

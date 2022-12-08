@@ -1,0 +1,37 @@
+package com.sample.rules
+
+import java.util.*;   
+
+import com.sample.Conditions.*;
+
+//RUPTURE BRUTALE
+
+rule "Avis de préavis forme orale"
+when
+	$relation : Relation();
+	$rupture : Rupture(victime == $relation.victime, auteur == $relation.auteur);
+	Brutalité(victime == $relation.victime, auteur == $relation.auteur);
+	AvisPréavis(forme == "orale")
+then
+	modify ($rupture) {setBrutale(true)};
+end
+
+rule "Avis de préavis mentions intention de rompre obligatoire"
+when
+	$relation : Relation();
+	$rupture : Rupture(victime == $relation.victime, auteur == $relation.auteur);
+	Brutalité(victime == $relation.victime, auteur == $relation.auteur);
+	AvisPréavis(mentionIntentionDeRompre == false)
+then
+	modify ($rupture) {setBrutale(true)};
+end
+
+rule "Avis de préavis mention durée obligatoire"
+when
+	$relation : Relation();
+	$rupture : Rupture(victime == $relation.victime, auteur == $relation.auteur);
+	Brutalité(victime == $relation.victime, auteur == $relation.auteur);
+	AvisPréavis(mentionDurée == false)
+then
+	modify ($rupture) {setBrutale(true)};
+end

@@ -1,0 +1,29 @@
+package com.sample.Conditions;
+
+public enum Activité {
+	NA,
+	MandatDIntérêtCommun,
+	PrestationDeService,
+	ActivitéCommerciale,
+	AgentCommercial,
+	Bail, 
+	LocationDeVéhiculeAvecChauffeur, 
+	ContratDePrestationPédagogique,
+	ContratTypeDeTransport,
+	SoustraitanceTransport,
+	Avocats,
+	CPI,
+	AssociationGérantDesEtablissementsMédicoSociaux,
+	RelationEntreUneSociétéCoopérativeDeCommerçantsDétaillantsEtUnAssocié,
+	RelationEntreUnSyndicatDeCopropriétairesEtUneAutrePartie,
+	RelationEntreUneSociétéMèreEtUneSociétéFille,
+	RelationEntreLesPartiesDUnContratDeGéranceMandat,
+	AgenceCommerciale,
+	RelationEntreUnPrestataireEtUnClient,
+	SyndicatDeCopropriétaire,
+	RelationEntreUneFédérationSportiveProfessionnelleEtLePrestataireOrganisateurDeVoyages,
+	RelationEntreUnIntermédiaireEtUneSociété,
+	RelationEntreUneCliniqueEtUneSociétéDeTransports,
+	RelationEntreUneAssociationEtUneSociété,
+	RelationEntreUnChirurgienDentisteEtSonFournisseurDeMatérielDentaire
+}

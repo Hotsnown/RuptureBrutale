@@ -1,0 +1,142 @@
+package com.sample.rules
+
+import com.sample.Conditions.Relation;
+import com.sample.Conditions.AppelOffre;
+import com.sample.Conditions.Activité;
+
+
+//RELATION COMMERCIALE
+rule "Présomption de commercialité" @Defeasible
+when
+	$relation : Relation();
+then
+	modify ( $relation ) { setCommercial ( true ) };
+end
+
+//APPLICATION NEGATIVE
+
+//LEX SPECIALIA
+rule "agent commercial" @Defeats ("Présomption de commercialité")
+when
+	$relation : Relation(activité == Activité.AgentCommercial);
+then
+	modify ( $relation ) { setCommercial ( false ) };
+end
+
+rule "Contrat type de transport" @Defeats ("Présomption de commercialité")
+when
+	$relation : Relation(activité == Activité.ContratTypeDeTransport);
+then
+	modify ( $relation ) { setCommercial ( false ) };
+end
+
+//ACTIVITES NON COMMERCIALES
+
+rule "Avocats" @Defeats ("Présomption de commercialité")
+when
+	$relation : Relation(activité == Activité.Avocats);
+then
+	modify ( $relation ) { setCommercial ( false ) };
+end
+
+rule "Association gérant des établissements médico-sociaux" @Defeats ("Présomption de commercialité")
+when
+	$relation : Relation(activité == Activité.AssociationGérantDesEtablissementsMédicoSociaux);
+then
+	modify ( $relation ) { setCommercial ( false ) };
+end
+
+rule "relation entre une association et une société" @Defeats ("Présomption de commercialité")
+when
+	$relation : Relation(activité == Activité.RelationEntreUneAssociationEtUneSociété);
+then
+	modify ( $relation ) { setCommercial ( false ) };
+end
+
+rule "Relation entre un chirurgien dentiste et son fournisseur de matériel dentaire" @Defeats ("Présomption de commercialité")
+when
+	$relation : Relation(activité == Activité.RelationEntreUnChirurgienDentisteEtSonFournisseurDeMatérielDentaire);
+then
+	modify ( $relation ) { setCommercial ( false ) };
+end
+
+rule "CPI" @Defeats ("Présomption de commercialité")
+when
+	$relation : Relation(activité == Activité.CPI);
+then
+	modify ( $relation ) { setCommercial ( false ) };
+end
+
+rule "Relation entre une société mère et une société fille" @Defeats ("Présomption de commercialité")
+when
+	$relation : Relation(activité == Activité.RelationEntreUneSociétéMèreEtUneSociétéFille);
+then
+	modify ( $relation ) { setCommercial ( false ) };
+end
+
+rule "Relation entre un intermédiaire  et une société" @Defeats ("Présomption de commercialité")
+when
+	$relation : Relation(activité == Activité.RelationEntreUnIntermédiaireEtUneSociété);
+then
+	modify ( $relation ) { setCommercial ( false ) };
+end
+
+rule "Relation entre une société coopérative de commerçants détaillants et un associé" @Defeats ("Présomption de commercialité")
+when
+	$relation : Relation(activité == Activité.RelationEntreUneSociétéCoopérativeDeCommerçantsDétaillantsEtUnAssocié);
+then
+	modify ( $relation ) { setCommercial ( false ) };
+end
+
+rule "relation entre une clinique et une société de transports" @Defeats ("Présomption de commercialité")
+when
+	$relation : Relation(activité == Activité.RelationEntreUneCliniqueEtUneSociétéDeTransports);
+then
+	modify ( $relation ) { setCommercial ( false ) };
+end
+//APPLICATION POSITIVE
+
+//ACTIVITES COMMERCIALES
+
+rule "Bail" @Defeats ("Présomption de commercialité")
+when
+	$relation : Relation(activité == Activité.Bail);
+then
+	modify ( $relation ) { setCommercial ( true ) };
+end
+
+rule "relation entre une fédération sportive professionnelle (FFR) et le prestataire organisateur de voyages" @Defeats ("Présomption de commercialité")
+when
+	$relation : Relation(activité == Activité.RelationEntreUneFédérationSportiveProfessionnelleEtLePrestataireOrganisateurDeVoyages);
+then
+	modify ( $relation ) { setCommercial ( true ) };
+end
+
+rule "Location de véhicule avec chauffeur" @Defeats ("Présomption de commercialité")
+when
+	$relation : Relation(activité == Activité.LocationDeVéhiculeAvecChauffeur);
+then
+	modify ( $relation ) { setCommercial ( true ) };
+end
+
+rule "Contrat de prestation pédagogique" @Defeats ("Présomption de commercialité")
+when
+	$relation : Relation(activité == Activité.ContratDePrestationPédagogique);
+then
+	modify ( $relation ) { setCommercial ( true ) };
+end
+
+//NB: pas une condition nécéssaire
+rule "Relation entre un syndicat de copropriétaire et une autre partie" @Defeats ("Présomption de commercialité")
+when
+	$relation : Relation(activité == Activité.RelationEntreUnSyndicatDeCopropriétairesEtUneAutrePartie);
+then
+	modify ( $relation ) { setCommercial ( true ) };
+end
+
+rule "Relation entre les parties d'un contrat de gérance-mandat" @Defeats ("Présomption de commercialité")
+when
+	$relation : Relation(activité == Activité.RelationEntreLesPartiesDUnContratDeGéranceMandat);
+then
+	modify ( $relation ) { setCommercial ( true ) };
+end

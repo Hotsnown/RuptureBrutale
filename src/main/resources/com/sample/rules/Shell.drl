@@ -1,0 +1,69 @@
+package com.sample.rules
+
+import com.expertsystem.expertsystem.*;
+
+global Dialogue dialogue;
+
+query getSolution
+	$result: Solution();
+end
+
+rule Init when
+then
+    dialogue.say("FOOPS - A Toy Production System.\n" );
+    dialogue.say("The => prompt accepts four commands:\n");
+    dialogue.say("go. - starts the inference\n");
+    dialogue.say("list. - list working memor\n");
+    dialogue.say("exit. - does what you'd expect\n");
+    insert( SituationFactuelle.newQ1() );
+end
+
+rule End when
+    s : Solution()
+    q : Question( id == "1" )
+then
+    dialogue.say("Solution Found:\n" + s.getText() );
+    delete( q );
+end
+
+rule AskQuestion when
+    q : Question( )
+    not Answer( question == q )
+then
+    String answer = dialogue.askAttributeValue(q.getId(), q.getText());
+    insert ( answer );
+end
+
+rule ProcessAnswer when
+    $value: String()
+    q : Question()
+    not Answer( question == q )
+then
+    insert( new Answer( q, $value ) );
+    delete( $value );
+end
+
+rule ProcessAnswerToTriple
+when
+	$triple: Triple(objet=="")
+	q : Question(id == $triple.getId())
+    $answer : Answer( question == q )
+	$sujet: Thing(id==$triple.getSujetId());
+then
+	modify ($sujet) {setProperty($triple.relation, $answer.answer)};
+end
+
+rule Exit 
+when
+	s : String( this matches "exit")
+then
+	dialogue.say("TODO");
+    kcontext.getKieRuntime().halt();
+end
+
+rule InvalidInput when
+    s : String( )
+then
+    dialogue.say( "Invalid input : " + s );
+    delete( s );
+end

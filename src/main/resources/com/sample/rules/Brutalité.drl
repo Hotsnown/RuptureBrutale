@@ -1,0 +1,43 @@
+package com.sample.rules
+
+import java.util.*;   
+
+import com.sample.Conditions.RuptureBrutale.*;
+
+import com.sample.Conditions.ForceMajeure;
+import com.sample.Conditions.Manquement;
+
+//RUPTURE BRUTALE
+
+rule "Condition rupture brutale"
+when
+	$relation : Relation();
+	$rupture : Rupture(victime == $relation.victime, auteur == $relation.auteur);
+	Brutalité(victime == $relation.victime, auteur == $relation.auteur);
+then
+	modify ($rupture) {setBrutale(true)}
+end
+
+
+//BRUTALITE
+rule "Brutalité pour préavis insuffisant" @Defeasible
+when
+	$relation : Relation();
+    $rupture : Rupture(victime == $relation.victime, auteur == $relation.auteur);
+	$dr : DuréeRaisonnable();
+	DuréeEffective(durée <= $dr.durée);
+then
+	modify ($rupture) {setBrutale(true)};
+end
+
+rule "Si rupture alors durée de préavis"
+when
+	$relation : Relation();
+	Rupture(victime == $relation.victime, auteur == $relation.auteur);
+then
+	insert (new DuréeRaisonnable($relation.victime, $relation.auteur));
+end
+
+query "getDuréeRaisonnable"
+    $duréeRaisonnable: DuréeRaisonnable()
+end

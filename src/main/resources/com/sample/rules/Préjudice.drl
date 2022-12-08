@@ -1,0 +1,141 @@
+package com.sample.rules
+
+import java.util.*;   
+import com.sample.Conditions.*;
+import com.sample.*;
+import com.sample.Conditions.RuptureBrutale.*;
+
+query "getDommage"
+    $result: Dommage()
+end
+
+rule "Existence Domamge"
+when
+	$relation : Relation();
+then
+	insert (new Dommage($relation.victime));
+end
+
+rule "Présomption indemnisation"
+when
+	$dommage : Dommage()
+then
+	modify ($dommage) { setEstIndemnisable ( true ) };
+end
+
+//MARGE PERDUE
+rule "Détermination de la marge perdue"
+when
+	$relation : Relation();
+	$assiette : CACommun(partenaire1 == $relation.victime, partenaire2 == $relation.auteur);
+	$marge : Marge(partenaire1 == $relation.victime, partenaire2 == $relation.auteur, taux != 0);
+	$dommage : Dommage(victime == $relation.victime);
+	$dr : DuréeRaisonnable();
+	$de : DuréeEffective();
+then
+	modify ($dommage) { setMontant ( ($assiette.volume * $marge.taux) * ($dr.durée - $de.durée)) };
+end
+
+//ASSIETTE
+rule "Moyenne des prestations sur 3 ans" @Defeasible
+when
+	$année1: Année()
+	$année2: Année(année == $année1.année + 1)
+	$année3: Année(année == $année2.année + 1)
+	$relation : Relation();
+	Number ( $totalMontant: intValue ) from accumulate(
+	   $prestation : Prestation(estAdmissible == true, année == $année1.année || année == $année2.année || année == $année3.année),
+	   sum($prestation.montant)
+	)
+	$assiette : CACommun(partenaire1 == $relation.victime, partenaire2 == $relation.auteur);
+then
+  modify ($assiette) { setVolume( $totalMontant / 3 ) };
+end
+
+rule "Exercice exceptionnel" @Defeats("Moyenne des prestations sur 3 ans")
+when
+	Prestation(exceptionnel == true);
+	$année1: Année()
+	$année2: Année(année == $année1.année + 1)
+	$année3: Année(année == $année2.année + 1)
+	$relation : Relation();
+	Number ( $totalMontant: intValue ) from accumulate(
+	   $prestation : Prestation(estAdmissible == true, exceptionnel == false, année == $année1.année || année == $année2.année || année == $année3.année),
+	   sum($prestation.montant)
+	)
+	$assiette : CACommun(partenaire1 == $relation.victime, partenaire2 == $relation.auteur);
+then
+  modify ($assiette) { setVolume( $totalMontant / 2 )}; //TODO: divide by length of non exceptional year
+end
+	
+//TAUX
+
+rule "Taux brut applicable" @Defeasible
+when
+	$relation : Relation();
+	$marge : Marge(partenaire1 == $relation.victime, partenaire2 == $relation.auteur);
+then
+	modify ($marge) {setVariable( false ) };
+end
+
+rule "Taux brut" @Defeasible
+when
+	$relation : Relation();
+	$ca : CACommun(partenaire1 == $relation.victime, partenaire2 == $relation.auteur);
+	$coûts : Coûts(partenaire1 == $relation.victime, partenaire2 == $relation.auteur);
+	$marge : Marge(partenaire1 == $relation.victime, partenaire2 == $relation.auteur);
+then
+	modify ($marge) {setTaux( ($ca.volume - $coûts.volume) / $ca.volume ) };
+end
+
+rule "Taux brut pour prestation de service"  @Defeats("Taux brut")
+when
+	$relation : Relation(activité == Activité.PrestationDeService);
+	$ca : CACommun(partenaire1 == $relation.victime, partenaire2 == $relation.auteur);
+	$marge : Marge(partenaire1 == $relation.victime, partenaire2 == $relation.auteur);
+then
+	modify ($marge) {setTaux( 1 ) };
+end
+
+rule "Taux brut pour mandat d'intérêt commun"  @Defeats("Taux brut")
+when
+	$relation : Relation(activité == Activité.MandatDIntérêtCommun);
+	$ca : CACommun(partenaire1 == $relation.victime, partenaire2 == $relation.auteur);
+	$marge : Marge(partenaire1 == $relation.victime, partenaire2 == $relation.auteur);
+then
+	modify ($marge) {setTaux( 1 ) };
+end
+
+rule "Taux coûts variables applicable" @Defeats("Taux brut")
+when
+	$relation : Relation();
+	$chargesVariables : ChargesVariables(partenaire1 == $relation.victime, partenaire2 == $relation.auteur);
+	$marge : Marge(partenaire1 == $relation.victime, partenaire2 == $relation.auteur);
+then
+	modify ($marge) { setVariable (true) };
+end
+
+rule "Taux coûts variables" @Defeats("Taux brut")
+when
+	$relation : Relation();
+	$ca : CACommun(partenaire1 == $relation.victime, partenaire2 == $relation.auteur);
+	$chargesVariables : ChargesVariables(partenaire1 == $relation.victime, partenaire2 == $relation.auteur);
+	$marge : Marge(partenaire1 == $relation.victime, partenaire2 == $relation.auteur);
+then
+	modify ($marge) {setTaux( ($ca.volume - $chargesVariables.volume) / $ca.volume ) };
+end
+
+rule "Qualification coûts variables"
+when
+  $type: CoûtsVariables() from CoûtsVariables.values()       
+  $frais: Frais(nature == $type.getCoûtVariable())
+  $relation : Relation();
+then
+	insert (new ChargesVariables($relation.victime, $relation.auteur, $frais.montant));
+end
+
+//STOCKS
+
+//PREJUDICE D'IMAGE
+
+//COUT DU LICENCIEMENT D'UN SALARIE

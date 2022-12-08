@@ -1,0 +1,114 @@
+package com.sample.rules
+
+
+import com.sample.Conditions.Relation;
+import com.sample.Conditions.AppelOffre;
+
+
+//RELATION ETABLIE
+
+rule "Relation Etablie" @Defeasible
+when
+	$relation : Relation(stable == true, suivie  == true, régulière==true);
+then
+	modify ( $relation ) { setEtablie (true) };
+end
+
+rule "Relation Etablie en fonction du CA" @Defeats ("Relation Etablie")
+when
+	 $relation: (Relation(victime == $relation.victime, auteur == $relation.auteur, durée > 7) or 
+			Relation(victime == $relation.victime, auteur == $relation.auteur, fluxaffaires == FluxAffaires.IMPORTANT))
+then
+	modify ( $relation ) { setEtablie (true) };
+end
+
+//RELATION STABLE
+rule "Relation Stable" @Defeasible
+when
+	$relation : Relation();	
+then
+	modify ($relation) {setStable (true)};
+end
+
+rule "Appel Offre" @Defeats("Relation Stable")
+when
+	$relation : Relation();
+	AppelOffre(commanditaire == $relation.auteur);
+then
+	modify ($relation) {setStable (false)};
+end
+
+rule "Relation conditionnelle" @Defeats("Relation Stable")
+when
+	$relation : Relation();
+	ContinuationConditionnelle();
+then
+	modify ($relation) {setStable (false)};
+end
+
+//RELATION SUIVIE
+rule "Relation Suivie" @Defeasible
+when
+	$relation : Relation()
+then
+	modify ($relation) {setSuivie (true)};
+end
+
+rule "Interuption de la relation"  @Defeats("Relation Suivie")
+when
+	$relation : Relation();
+	Interruption();
+then
+	modify ($relation) {setSuivie (false)};
+end
+
+rule "Altérité des parties"  @Defeats("Relation Suivie")
+when
+	$relation : Relation();
+	AltéritéDesParties();
+then
+	modify ($relation) {setSuivie (false)};
+end
+
+rule "Immixtion de la société mère"  @Defeats("Altérité des parties")
+when
+	$relation : Relation();
+	AltéritéDesParties();
+	ImmixtionSociétéMère();
+then
+	modify ($relation) {setSuivie (true)};
+end
+
+rule "Pas d'immixtion de la société mère"  @Defeats("Immixtion de la société mère")
+when
+	$relation : Relation();
+	AltéritéDesParties();
+	ImmixtionSociétéMère();
+	ImmixtionSociétéMèreContestée();
+then
+	modify ($relation) {setSuivie (false)};
+end
+
+//RELATION REGULIERE
+rule "Relation Régulière" @Defeasible
+when
+	$relation : Relation();
+then
+	modify ($relation) {setRégulière (true)};
+end
+
+rule "Relation Ponctuelle" @Defeats("Relation Régulière")
+when
+	$relation : Relation();
+	Transactions(fréquence==Fréquence.Ponctuelle);
+then
+	modify ($relation) {setRégulière (false)};
+end
+
+rule "Relation Substantielle" @Defeats("Relation Régulière")
+when
+	$relation : Relation();
+	Transactions(réalité==Réalité.Formel);
+then
+	modify ($relation) {setRégulière (false)};
+end

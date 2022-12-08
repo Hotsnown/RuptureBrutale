@@ -1,0 +1,35 @@
+//created on: 22 sept. 2022
+package com.sample.rules
+
+import java.util.*;   
+
+import com.sample.Conditions.RuptureBrutale.*;
+
+import com.sample.Conditions.ForceMajeure;
+import com.sample.Conditions.Manquement;
+
+//IMPUTABILITE
+rule "Présomption d'imputabilité"
+when
+	$rupture : Rupture();
+then
+	modify ( $rupture ) { setEstImputableA ( $rupture.auteur) };
+end
+	
+rule "Rupture imputable à la volonté commune des parties"
+when
+	$rupture : Rupture();
+	exists (RetardsDePaiements()); 
+then
+	List<Personne> responsables = Arrays.asList($rupture.auteur, $rupture.victime);
+	modify ( $rupture ) { setEstImputableA ( responsables ) };
+end
+
+rule "Rupture imputable à la volonté commune des parties2"
+when
+	$rupture : Rupture();
+	exists (ProcédureDeSaisieConservatoire());
+then
+	List<Personne> responsables = Arrays.asList($rupture.auteur, $rupture.victime);
+	modify ( $rupture ) { setEstImputableA ( responsables ) };
+end

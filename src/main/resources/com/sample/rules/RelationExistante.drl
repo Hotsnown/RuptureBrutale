@@ -1,0 +1,47 @@
+package com.sample.rules
+import com.sample.Conditions.*;
+
+//SUCCESSION DE CONTRATS
+declare GroupDuration 
+  id : String
+  duration : long
+end
+
+query "getRelations"
+    $relation: Relation()
+end
+
+rule "Find Group Durations"
+salience 1
+when
+  Task( $id: groupId );
+  not( GroupDuration( id == $id ));
+  accumulate( Task( groupId == $id, $d: duration);
+              $duration: sum($d))
+then
+  insert(new GroupDuration($id, $duration));
+end
+
+rule "Find Longest Group Duration"
+when
+  GroupDuration( $id: id, $duration: duration )
+  not( GroupDuration( duration > $duration ))
+then
+  System.out.print($id);
+end
+
+//CONTRAT UNIQUE
+rule "Relation contrat unique"
+when
+	$contrat : Contrat()
+then
+	insert (new Relation($contrat.p1, $contrat.p2, $contrat.durée, $contrat.fluxAffaires, $contrat.activité));
+end
+
+//SUCCESSION DE CONTRATS
+
+//INTERRUPTION
+
+//POURSUITE
+
+//POINT DE DEPART

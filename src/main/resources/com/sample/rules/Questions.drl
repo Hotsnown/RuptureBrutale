@@ -1,0 +1,105 @@
+//created on: 21 nov. 2022
+package com.sample.rules
+
+import com.expertsystem.expertsystem.*;
+
+global Dialogue dialogue;
+
+query "getAnswers"
+	$result: Answer()
+end
+
+query "getVictimes"
+	$result : Personne(id == ID.Victime);
+end
+
+query "getAuteurs"
+	$result : Personne(id == ID.Auteur);
+end
+
+query "getPersonnes"
+	$result : Personne();
+end
+
+query "getContrats"
+	$result : Contrat();
+end
+
+query "getDE"
+	$result : DuréeEffective();
+end
+
+query "getCDC"
+	$result : CessationDesCommandes();
+end
+
+query "getCAC"
+	$result : CACommun();
+end
+
+query "getMarge"
+	$result : Marge();
+end
+
+rule AskAuteur when
+    q : Question( id == ID.VictimeNom )
+    Answer( question == q )
+then
+    insertLogical( SituationFactuelle.newQ2( ) );
+end
+
+rule AskDurée when
+    q : Question( id == ID.AuteurNom )
+    Answer( question == q )
+then
+    insertLogical( SituationFactuelle.newQ3( ) );
+end
+
+rule AskFluxAffaires when
+    q : Question( id == ID.DuréeRelation )
+    Answer( question == q )
+then
+    insertLogical( SituationFactuelle.newQ4( ) );
+end
+
+rule AskActivité when
+    q : Question( id == ID.FluxAffaires )
+    Answer( question == q )
+then
+    insertLogical( SituationFactuelle.newQ5( ) );
+end
+
+rule AskCessationDesCommandes when
+    q : Question( id == ID.Activité )
+    Answer( question == q )
+then
+    insertLogical( SituationFactuelle.newQ6( ) );
+end
+
+rule AskDuréeEffective when
+    q : Question( id == ID.CessationDesCommandes )
+    Answer( question == q )
+then
+    insertLogical( SituationFactuelle.newQ7( ) );
+end
+
+rule AskPartDeCA when
+    q : Question( id == ID.DuréeEffective )
+    Answer( question == q )
+then
+    insertLogical( SituationFactuelle.newQ8( ) );
+end
+
+rule AskVolumeCA when
+    q : Question( id == ID.PartDeCA )
+    Answer( question == q )
+then
+    insertLogical( SituationFactuelle.newQ9( ) );
+end
+
+rule AskTauxMarge when
+    q : Question( id == ID.VolumeDeCA )
+    Answer( question == q )
+then
+    insertLogical( SituationFactuelle.newQ10( ) );
+end

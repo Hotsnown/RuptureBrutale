@@ -1,0 +1,50 @@
+package com.sample.rules
+ 
+import com.sample.FaitGenerateur;
+import com.sample.Causalite;
+import com.sample.Dommage;
+import com.sample.Conditions.EstApplicable;
+import com.sample.Conditions.AppelOffre;
+import com.sample.Conditions.Relation;
+
+import com.sample.Conditions.RuptureBrutale.Brutalité;
+import com.sample.Conditions.RuptureBrutale.Rupture;
+
+import com.sample.Conditions.RelationCommercialeEtablie.FluxAffaires;
+
+import com.sample.Personne;
+
+query "getFaute"
+    $result: FaitGenerateur()
+end
+
+rule "Faute Rupture Brutale"
+when
+	$relation :Relation(victime == $relation.victime, auteur == $relation.auteur, commercial == true, établie == true); 
+	Rupture(victime == $relation.victime, auteur == $relation.auteur, brutale == true);
+	exists EstApplicable();
+then
+	insert (new FaitGenerateur($relation.auteur, $relation.victime, "rupture brutale"));
+end
+
+rule "Réparation par équivalent"
+when
+	EstApplicable();
+	$faitgenerateur : FaitGenerateur();
+	$dommage : Dommage(victime == $faitgenerateur.créancier, estIndemnisable == true);
+	$cause : Causalite(cause == $faitgenerateur, effet == $dommage);
+then
+    modify( $faitgenerateur.débiteur ){ setResponsabilité( true ) }
+end
+
+query "getCause"
+	$cause : Causalite()
+end
+
+rule "Présomption de causalité"
+when
+	$faitgenerateur : FaitGenerateur();
+	$dommage : Dommage();
+then
+	insert (new Causalite($faitgenerateur, $dommage));
+end

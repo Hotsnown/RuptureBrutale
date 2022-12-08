@@ -1,0 +1,280 @@
+package com.sample.rules
+
+import java.util.*;   
+
+import com.sample.Conditions.RuptureBrutale.*;
+import com.sample.Conditions.*;
+import com.sample.Conditions.ObligationsExigiblesDuFaitDeLaRupture;
+
+query "getDépendances"
+	$result : Dépendance()
+end
+
+//CLAUSE DE PREAVIS
+rule "Clause de Préavis"
+when
+	$relation : Relation();
+	$dr : DuréeRaisonnable(victime == $relation.victime, auteur == $relation.auteur)	
+	$clause: Clause(contenu.thème == ThèmeNormatif.préavis)
+then
+	modify ($dr) { setDuréePréavis ( $clause.contenu.modalité ) };
+end
+
+//NORME LEGALE
+rule "Norme Légale agents commerciaux"
+when
+	$relation : Relation();
+	$dr : DuréeRaisonnable(victime == $relation.victime, auteur == $relation.auteur)	
+	NormeAgentsCommerciaux();
+then
+	modify ($dr) { setDuréePréavis ( 10 ) };
+end
+
+rule "Norme Légale Gérants-mandataires de maisons d’alimentation"
+when
+	$relation : Relation();
+	$dr : DuréeRaisonnable(victime == $relation.victime, auteur == $relation.auteur)	
+	NormeGérantsMandatairesDeMaisonsDalimentation();
+then
+	modify ($dr) { setDuréePréavis ( 10 ) };
+end
+
+rule "Norme Légale Concours bancaires"
+when
+	$relation : Relation();
+	$dr : DuréeRaisonnable(victime == $relation.victime, auteur == $relation.auteur)	
+	NormeConcoursBancaire();
+then
+	modify ($dr) { setDuréePréavis ( 10 ) };
+end
+
+rule "Norme Légale Contrat-type LOTI"
+when
+	$relation : Relation();
+	$dr : DuréeRaisonnable(victime == $relation.victime, auteur == $relation.auteur)	
+	NormeContratTypeLOTI();
+then
+	modify ($dr) { setDuréePréavis ( 10 ) };
+end
+
+//DUREE DES RELATIONS
+rule "Durée raisonnable déterminée par durée des relations"
+when
+	$relation : Relation(durée == 24);
+	$dr : DuréeRaisonnable(victime == $relation.victime, auteur == $relation.auteur)	
+then
+	modify ($dr) { setDuréePréavis ( 2 ) };
+end
+
+//CHIFFRE D'AFFAIRE
+rule "Durée raisonnable déterminée par Part du CA"
+when
+	$relation : Relation();
+	CACommun(partenaire1 == $relation.victime, partenaire2 == $relation.auteur, partDeCA >= 0.6);
+	$dr : DuréeRaisonnable(victime == $relation.victime, auteur == $relation.auteur);
+then
+	modify ($dr) { setDuréePréavis ( 2 ) };
+end
+
+//SECTEUR
+rule "Secteur Transports Routiers"
+when
+	$relation : Relation(activité == "transports routiers");
+	$dr : DuréeRaisonnable(victime == $relation.victime, auteur == $relation.auteur);
+then
+	modify ($dr) { setDuréePréavis ( 2 ) };
+end
+
+rule "Sécurité Privée"
+when
+	$relation : Relation(activité == "sécurité privée");
+	$dr : DuréeRaisonnable(victime == $relation.victime, auteur == $relation.auteur);
+then
+	modify ($dr) { setDuréePréavis ( 2 ) };
+end
+
+rule "Fourniture de produits de santé"
+when
+	$relation : Relation(activité == "fourniture de produits de santé");
+	$dr : DuréeRaisonnable(victime == $relation.victime, auteur == $relation.auteur);
+then
+	modify ($dr) { setDuréePréavis ( 2 ) };
+end
+
+rule "marché parisien de l'automobile"
+when
+	$relation : Relation(activité == "marché parisien de l'automobile");
+	$dr : DuréeRaisonnable(victime == $relation.victime, auteur == $relation.auteur);
+then
+	modify ($dr) { setDuréePréavis ( 2 ) };
+end
+
+//INVESTISSEMENTS SPECIFIQUES
+rule Investissement
+when 
+	$relation : Relation();
+	$dr : DuréeRaisonnable(victime == $relation.victime, auteur == $relation.auteur)	
+	Investissement(spécifique==true, amorti==true, efficient==true, important==true)
+then
+	modify ($dr) { setDuréePréavis ( 2 ) };
+end
+
+rule "Investissement présumé spécifique" @Defeasible
+when
+	$i:Investissement()
+then
+	modify ($i) { setSpécifique (true) };
+end
+
+rule "Investissement présumé amorti" @Defeasible
+when
+	$i:Investissement()
+then
+	modify ($i) { setAmorti (true) };
+end
+
+rule "Investissement présumé efficient" @Defeasible
+when
+	$i:Investissement()
+then
+	modify ($i) { setEfficient (true) };
+end
+
+rule "Investissement présumé important" @Defeasible
+when
+	$i:Investissement()
+then
+	modify ($i) { setImportant (true) };
+end
+
+//DEPENDANCE
+rule "Présomption dépendance involontaire" @Defeasible
+when
+	$d: Dépendance();
+then
+	modify ($d) { setVolontaire (true)}
+end
+
+//DEPENDANCE ABSENCE DE PRODUIT EQUIVALENT
+rule "Dépendance pour cause de produit non substituable" @Defeats ("Présomption dépendance volontaire")
+when
+	$p: Produit(substituable==QualificationBooleenne.Faux);
+then
+	insert (new Dépendance($p.acheteur, $p.vendeur));
+end
+
+rule "Dépendance pour cause de produit notoire" @Defeats ("Présomption dépendance volontaire")
+when
+	$p: Produit(notoire==QualificationBooleenne.Vrai);
+then
+	insert (new Dépendance($p.acheteur, $p.vendeur));
+end
+
+rule "Dépendance pour cause de produit technique" @Defeats ("Présomption dépendance volontaire")
+when
+	$p: Produit(technique==QualificationBooleenne.Vrai);
+then
+	insert (new Dépendance($p.acheteur, $p.vendeur));
+end
+
+rule "Dépendance pour cause de produit distribué sous MDD" @Defeats ("Présomption dépendance volontaire")
+when
+	$p: Produit(distribuéSousMDD==QualificationBooleenne.Vrai);
+then
+	insert (new Dépendance($p.acheteur, $p.vendeur));
+end
+
+rule "Dépendance pour cause de produit saisonnier" @Defeats ("Présomption dépendance volontaire")
+when
+	$p: Produit(saisonnier==QualificationBooleenne.Vrai);
+then
+	insert (new Dépendance($p.acheteur, $p.vendeur));
+end
+
+rule "Dépendance pour cause de produit nouveau" @Defeats ("Présomption dépendance volontaire")
+when
+	$p: Produit(nouveau==QualificationBooleenne.Vrai);
+then
+	insert (new Dépendance($p.acheteur, $p.vendeur));
+end
+
+//DEPENDANCE DE JURE
+rule "Dépendance pour cause d'obligation de fidélisation" 
+when
+	$relation : Relation();
+	$clause: Clause(contenu.thème==ThèmeNormatif.ObligationDeFidélisation);
+then
+	insert (new Dépendance($relation.victime, $relation.auteur));
+end
+
+rule "Dépendance pour cause d'obligation d'exclusivité" 
+when
+	$relation : Relation();
+	$clause: Clause(contenu.thème==ThèmeNormatif.ObligationExclusivité);
+then
+	insert (new Dépendance($relation.victime, $relation.auteur));
+end
+
+rule "Qualification obligation de fidélisation pacte de préférence" 
+when
+	$relation: Relation()
+	PacteDePréférence()
+then
+	insert (new Clause(new Norme($relation.victime, $relation.auteur, ThèmeNormatif.ObligationDeFidélisation, 0)));
+end
+
+rule "Qualification obligation de fidélisation clause de non concurrence" 
+when
+	$relation: Relation()
+	ClauseDeNonConcurrence()
+then
+	insert (new Clause(new Norme($relation.victime, $relation.auteur, ThèmeNormatif.ObligationDeFidélisation, 0)));
+end
+
+rule "Qualification obligation de fidélisation clause de non affiliation" 
+when
+	$relation: Relation();
+	ClauseDeNonAffiliation()
+then
+	insert (new Clause(new Norme($relation.victime, $relation.auteur, ThèmeNormatif.ObligationDeFidélisation, 0)));
+end
+
+rule "Qualification obligation de fidélisation obligations exigibles du fait de la rupture" 
+when
+	$relation: Relation();
+	ObligationsExigiblesDuFaitDeLaRupture()
+then
+	insert (new Clause(new Norme($relation.victime, $relation.auteur, ThèmeNormatif.ObligationDeFidélisation, 0)));
+end
+
+rule "Qualification obligation de fidélisation Groupe De Contrat" 
+when
+	$relation: Relation()
+	GroupeDeContrat()
+then
+	insert (new Clause(new Norme($relation.victime, $relation.auteur, ThèmeNormatif.ObligationDeFidélisation, 0)));
+end
+
+rule "Qualification obligation de fidélisation obligations indemnisations" 
+when
+	$relation: Relation()
+	ObligationIndemnisation()
+then
+	insert (new Clause(new Norme($relation.victime, $relation.auteur, ThèmeNormatif.ObligationDeFidélisation, 0)));
+end
+
+rule "Qualification obligation de fidélisation obligation destruction" 
+when
+	$relation: Relation()
+	ObligationDestruction()
+then
+	insert (new Clause(new Norme($relation.victime, $relation.auteur, ThèmeNormatif.ObligationDeFidélisation, 0)));
+end
+
+//18 mois max
+rule "18 mois max"
+when
+	$dr : DuréeRaisonnable(durée > 18)
+then
+	modify ($dr) {setDuréePréavis (18)};
+end
