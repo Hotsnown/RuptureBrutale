@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<kmodule xmlns="http://www.drools.org/xsd/kmodule">
+<kmodule xmlns="http://www.drools.org/xsd/kmodule" >
     <kbase name="rules" packages="com.sample.rules">
         <ksession name="ksession-rules"/>
     </kbase>
+    <kbase name="rules2" packages="dialogue,personality,scenario"
+		equalsBehavior="equality">
+		<ksession name="anamnesi_ksession" default="true" type="stateful"
+			clockType="realtime" />
+	</kbase>
 </kmodule>

@@ -1,113 +1,241 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.7.4</version>
-		<relativePath/> <!-- lookup parent from repository -->
-	</parent>
-	<groupId>com.expertsystem</groupId>
-	<artifactId>expertsystem</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>expertsystem</name>
-	<description>Expert system for the web</description>
-	<properties>
-		<java.version>17</java.version>
-	</properties>
-	<dependencies>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>2.7.4</version>
+    <relativePath/>
+    <!-- lookup parent from repository -->
+  </parent>
+  <groupId>com.expertsystem</groupId>
+  <artifactId>expertsystem</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>expertsystem</name>
+  <description>Expert system for the web</description>
+  <properties>
+    <java.version>8</java.version> 
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+  </properties>
+  <dependencies>
 
-	<dependency>
-	    <groupId>org.drools</groupId>
-	    <artifactId>drools-core</artifactId>
-	    <version>8.31.0.Final</version>
-	</dependency>
-	<!-- https://mvnrepository.com/artifact/org.kie/kie-internal -->
-	<dependency>
-		<groupId>org.kie</groupId>
-		<artifactId>kie-internal</artifactId>
-		<version>8.31.0.Final</version>
-	</dependency>
-
-	<!-- https://mvnrepository.com/artifact/org.drools/drools-xml-support -->
-	<dependency>
-		<groupId>org.drools</groupId>
-		<artifactId>drools-xml-support</artifactId>
-		<version>8.31.0.Final</version>
-		<scope>test</scope>
-	</dependency>
-
-	<!-- https://mvnrepository.com/artifact/org.kie/kie-api -->
-	<dependency>
-		<groupId>org.kie</groupId>
-		<artifactId>kie-api</artifactId>
-		<version>8.31.0.Final</version>
-	</dependency>
-
-	<!-- https://mvnrepository.com/artifact/org.drools/drools-compiler -->
-	<dependency>
-		<groupId>org.drools</groupId>
-		<artifactId>drools-compiler</artifactId>
-		<version>8.31.0.Final</version>
-	</dependency>
+    <dependency>
+      <groupId>org.drools</groupId>
+      <artifactId>drools-compiler</artifactId>
+      <version>8.31.0.Final</version>
+    </dependency>
 
 
-<dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <version>1.7.21</version>
+    <dependency>
+      <groupId>org.kie</groupId>
+      <artifactId>kie-api</artifactId>
+      <version>8.31.0.Final</version>
     </dependency>
 
     <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-simple</artifactId>
-        <version>1.7.21</version>
+      <groupId>org.drools</groupId>
+      <artifactId>drools-core</artifactId>
+      <version>8.31.0.Final</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.kie/kie-internal -->
+    <dependency>
+      <groupId>org.kie</groupId>
+      <artifactId>kie-internal</artifactId>
+      <version>8.31.0.Final</version>
     </dependency>
 
-	<dependency>
-        <groupId>commons-lang</groupId>
-        <artifactId>commons-lang</artifactId>
-        <version>2.6</version>
+    <!-- https://mvnrepository.com/artifact/org.drools/drools-xml-support -->
+    <dependency>
+      <groupId>org.drools</groupId>
+      <artifactId>drools-xml-support</artifactId>
+      <version>8.31.0.Final</version>
     </dependency>
 
-<!-- https://mvnrepository.com/artifact/org.drools/drools-mvel -->
-<dependency>
-    <groupId>org.drools</groupId>
-    <artifactId>drools-mvel</artifactId>
-    <version>8.31.0.Final</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/org.drools/drools-tms -->
-<dependency>
-    <groupId>org.drools</groupId>
-    <artifactId>drools-tms</artifactId>
-    <version>8.24.1.Beta</version>
-</dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.21</version>
+    </dependency>
 
-	</dependencies>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>1.7.21</version>
+    </dependency>
 
-	<build>
-		<resources>
-            <resource>
-                <directory>src/main/resources</directory>
-            </resource>
-        </resources>
-		<plugins>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>exec-maven-plugin</artifactId>
-				<version>1.2.1</version>
-			</plugin>
-			<plugin>
-				<groupId>org.kie</groupId>
-				<artifactId>kie-maven-plugin</artifactId>
-				<version>8.31.0.Final</version>
-				<extensions>true</extensions>
-			</plugin>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.6</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.drools/drools-mvel -->
+    <dependency>
+      <groupId>org.drools</groupId>
+      <artifactId>drools-mvel</artifactId>
+      <version>8.31.0.Final</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.drools/drools-tms -->
+    <dependency>
+      <groupId>org.drools</groupId>
+      <artifactId>drools-tms</artifactId>
+      <version>8.24.1.Beta</version>
+    </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.11</version>
+      <scope>test</scope>
+    </dependency>
 
 
-		
-		</plugins>
-	</build>
+    <dependency>
+      <groupId>de.galan</groupId>
+      <artifactId>commons</artifactId>
+      <version>2.0.2</version>
+    </dependency>
+
+
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-vfs2-distribution</artifactId>
+      <version>2.9.0</version>
+      <type>pom</type>
+    </dependency>
+
+
+    <dependency>
+      <groupId>com.esotericsoftware.yamlbeans</groupId>
+      <artifactId>yamlbeans</artifactId>
+      <version>1.15</version>
+    </dependency>
+
+
+    <dependency>
+      <groupId>org.antlr</groupId>
+      <artifactId>ST4</artifactId>
+      <version>4.3.4</version>
+    </dependency>
+
+
+    <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>31.0-jre</version>
+    </dependency>
+
+
+    <!-- https://mvnrepository.com/artifact/io.atlassian.fugue/fugue -->
+    <dependency>
+      <groupId>io.atlassian.fugue</groupId>
+      <artifactId>fugue</artifactId>
+      <version>4.5.1</version>
+      <scope>provided</scope>
+    </dependency>
+
+
+
+    <dependency>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>jsr305</artifactId>
+      <version>3.0.2</version>
+    </dependency>
+
+
+    <dependency>
+      <groupId>org.javatuples</groupId>
+      <artifactId>javatuples</artifactId>
+      <version>1.2</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
+    <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>2.11.0</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-vfs2 -->
+    <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-vfs2</artifactId>
+        <version>2.9.0</version>
+    </dependency>
+
+
+  </dependencies>
+
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+    </resources>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>1.2.1</version>
+      </plugin>
+      <plugin>
+        <groupId>org.kie</groupId>
+        <artifactId>kie-maven-plugin</artifactId>
+        <version>8.31.0.Final</version>
+        <extensions>true</extensions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.1</version>
+        <configuration>
+          <source>${maven.compiler.source}</source>
+          <target>${maven.compiler.target}</target>
+        </configuration>
+      </plugin>
+      <!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
+      <plugin>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>3.1.0</version>
+      </plugin>
+      <!-- default lifecycle, jar packaging: see https://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_jar_packaging -->
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.0.2</version>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.22.1</version>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.0.2</version>
+      </plugin>
+      <plugin>
+        <artifactId>maven-install-plugin</artifactId>
+        <version>2.5.2</version>
+      </plugin>
+      <plugin>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <version>2.8.2</version>
+      </plugin>
+      <!-- site lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#site_Lifecycle -->
+      <plugin>
+        <artifactId>maven-site-plugin</artifactId>
+        <version>3.7.1</version>
+      </plugin>
+      <plugin>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+        <version>3.0.0</version>
+      </plugin>
+
+    </plugins>
+  </build>
 
 </project>
