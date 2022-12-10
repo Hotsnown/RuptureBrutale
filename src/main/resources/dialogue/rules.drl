@@ -1,5 +1,8 @@
 package dialogue
 
+query "getReplies"
+	$results:Scene();
+end
 
 rule "Create default reply"
 when
@@ -59,8 +62,8 @@ then
 	delete($scene);
 	log.info("ignoring, couldn't find a match for '" + $utterance + "'");
 	// TODO with use the current agent as who??
-	// Utterance utt = Utterance.create(who??, $symbol)
-	// insert(new Reply(utt))
+	//Utterance utt = Utterance.create(Actor.create("patient"), $symbol);
+	//insert(new Reply(utt));
 end
 
 rule "Insert all uniquely parsed utterences as symbols"

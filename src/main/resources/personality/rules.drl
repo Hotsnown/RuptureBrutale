@@ -7,7 +7,7 @@ when
 	$believes: Believes()
 	not PersonalityProcess()
 then
-	log.info(drools.getRule().getName() + $utterance);
+	log.info(drools.getRule().getName() + " " + $utterance);
 	final DialogueTree tree = DialogueTree.createFromUtteranceAndBelieves($utterance, $believes);
 	List toProcess = $believes.personality.copyToList();
 	List reversed = $believes.personality.copyToList();
@@ -61,7 +61,7 @@ end
 rule "End personality process"
 when
 	$default: DefaultReply()
-	not JungianFunction() // because they still may be bussy
+	not JungianFunction() // because they still may be busy
 	$process: PersonalityProcess(functionTasks.isEmpty(), $actor:believes.self, $tree:under_consideration)
 	if( $tree.isPrefferedBy($actor) ) do [PopOption]
 then
